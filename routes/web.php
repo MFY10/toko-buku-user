@@ -1,21 +1,23 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BookController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+Route::resource('/books', BookController::class);
 
-Route::get('/', function () {
-    return view('welcome');
+
+// Rute Auth (Login & Register)
+Route::controller(AuthController::class)->group(function () {
+    Route::get('/register', 'showRegisterForm')->name('register');
+    Route::post('/register', 'register');
+    Route::get('/login', 'showLoginForm')->name('login');
+    Route::post('/login', 'login');
+    Route::post('/logout', 'logout')->name('logout');
 });
-Route::get('/', [DashboardController::class, 'index']);
+
+// Rute Dashboard (dilindungi oleh middleware auth)
+Route::middleware('auth')->group(function() {
+    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin', [AdminController::class, 'index'])->middleware('role:admin'); // Periksa middleware 'role:admin'
+});
