@@ -197,7 +197,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Mengelola Buku</a>
+                    <a class="nav-link" href="{{ route('manage.books') }}">Mengelola Buku</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Mengelola Stok Buku</a>
@@ -226,49 +226,59 @@
                     <ul class="dropdown-menu" aria-labelledby="navbarProfile">
                         <li><a class="dropdown-item" href="#">My Account</a></li>
                         <li><a class="dropdown-item" href="#">Orders</a></li>
-                        <li><a class="dropdown-item" href="#">Logout</a></li>
+                    <!-- Form Logout -->
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-bell-fill"></i> Notifikasi
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <button id="dark-mode-toggle" class="btn btn-outline-dark">
-                        🌙
-                    </button>
-                </li>
             </ul>
+
         </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container">
-        <h1>Selamat datang di Toko Buku</h1>
-        <p>Atur buku dan pemesanan dengan mudah.</p>
+        <h1>Selamat datang di Dashboard Toko Buku</h1>
+        <p>Kelola buku, stok, dan pesanan Anda di sini.</p>
     </div>
 
-    <!-- Back to Top Button -->
-    <button id="back-to-top" title="Back to top">↑</button>
-
-    <!-- Scripts -->
     <script>
-        const searchBar = document.getElementById("search-bar");
-        const suggestions = document.getElementById("search-suggestions");
-
-        searchBar.addEventListener("input", function() {
-            const query = searchBar.value.trim();
-
-            if (query) {
-                suggestions.style.display = "block";
-            } else {
-                suggestions.style.display = "none";
-            }
+        // Dark Mode Toggle
+        let darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
         });
 
-        document.querySelector("#dark-mode-toggle").addEventListener("click", function() {
-            document.body.classList.toggle("dark-mode");
+        // Back to Top Button
+        let backToTopButton = document.getElementById('back-to-top');
+        window.onscroll = function() {
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTopButton.style.display = "block";
+            } else {
+                backToTopButton.style.display = "none";
+            }
+        };
+
+        backToTopButton.onclick = function() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        };
+
+        // Search Bar Autocomplete
+        let searchBar = document.getElementById('search-bar');
+        searchBar.addEventListener('input', function() {
+            let searchQuery = searchBar.value.toLowerCase();
+            let suggestions = document.getElementById('search-suggestions');
+
+            if (searchQuery) {
+                suggestions.style.display = 'block';
+            } else {
+                suggestions.style.display = 'none';
+            }
         });
     </script>
 </body>

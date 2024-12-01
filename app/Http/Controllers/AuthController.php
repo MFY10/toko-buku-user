@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -58,7 +59,13 @@ class AuthController extends Controller
             // Generate session baru
             $request->session()->regenerate();
 
-            return redirect()->intended('dashboard');
+            // Cek role, jika admin arahkan ke admin dashboard
+            $user = Auth::user();
+            if ($user->role === 'admin') {
+                return redirect()->route('admin.dashboard'); // Redirect ke admin dashboard
+            }
+
+            return redirect()->intended('dashboard'); // Redirect ke user dashboard
         }
 
         // Jika gagal login, kembali ke halaman login
@@ -70,6 +77,10 @@ class AuthController extends Controller
     // Menampilkan dashboard
     public function dashboard()
     {
+        if (!Auth::check()) {
+            return redirect()->route('login'); // Jika belum login, arahkan ke login
+        }
+
         $user = Auth::user();
 
         // Jika role adalah admin, tampilkan dashboard admin
@@ -84,12 +95,27 @@ class AuthController extends Controller
     // Logout
     public function logout(Request $request)
     {
+        // Melakukan logout
         Auth::logout();
 
-        // Hapus session dan token CSRF
+        // Hapus session dan regenerasi token CSRF untuk keamanan
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Redirect ke halaman login setelah logout
+        return redirect()->route('login');
+    }
+
+    // Menampilkan halaman dashboard admin
+    public function adminDashboard()
+    {
+        // Cek apakah user memiliki role 'admin'
+        if (Auth::check() && Auth::user()->role === 'admin') {
+            $totalUsers = User::count();
+            $totalBooks = Book::count();
+            return view('admin.dashboard', compact('totalUsers', 'totalBooks'));
+        }
+        
+        return redirect()->route('dashboard');  // Arahkan ke halaman dashboard biasa
     }
 }

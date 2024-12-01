@@ -224,16 +224,23 @@
 
             <!-- User Profile and Notifications -->
             <ul class="navbar-nav ms-3">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle"></i> Profile
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarProfile">
-                        <li><a class="dropdown-item" href="#">My Account</a></li>
-                        <li><a class="dropdown-item" href="#">Orders</a></li>
-                        <li><a class="dropdown-item" href="#">Logout</a></li>
-                    </ul>
-                </li>
+            <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarProfile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-person-circle"></i> Profile
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="navbarProfile">
+        <li><a class="dropdown-item" href="#">My Account</a></li>
+        <li><a class="dropdown-item" href="#">Orders</a></li>
+        <!-- Form Logout -->
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+        </ul>
+    </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="#">
                         <i class="bi bi-bell-fill"></i> Notifikasi

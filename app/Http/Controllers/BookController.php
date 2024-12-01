@@ -2,78 +2,93 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Book;
 use Illuminate\Http\Request;
+use App\Models\Book;
 
 class BookController extends Controller
 {
     // Menampilkan daftar buku
     public function index()
     {
-        $books = Book::all();
-        return view('books.index', compact('books'));
+        $books = Book::all(); // Ambil semua data buku
+        return view('manage-books.index', compact('books'));
     }
 
-    // Menampilkan form tambah buku
+    // Menampilkan form untuk menambahkan buku
     public function create()
     {
-        return view('books.create');
+        return view('manage-books.create');
     }
 
     // Menyimpan buku baru
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
-            'author' => 'required',
+            'title' => 'required|max:255',
             'description' => 'required',
-            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048', // Validasi gambar
+            'cover_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $coverImagePath = $request->file('cover_image') ? $request->file('cover_image')->store('covers', 'public') : null;
+        $coverImage = null;
+        if ($request->hasFile('cover_image')) {
+            $coverImage = $request->file('cover_image')->store('covers', 'public');
+        }
 
         Book::create([
             'title' => $request->title,
-            'author' => $request->author,
             'description' => $request->description,
-            'cover_image' => $coverImagePath,
+            'cover_image' => $coverImage,
         ]);
 
-        return redirect()->route('books.index');
+        return redirect()->route('manage.books');
     }
 
-    // Menampilkan form edit buku
-    public function edit(Book $book)
+    // Menampilkan form untuk mengedit buku
+    public function edit($id)
     {
-        return view('books.edit', compact('book'));
+        $book = Book::findOrFail($id);
+        return view('manage-books.edit', compact('book'));
     }
 
-    // Mengupdate buku
-    public function update(Request $request, Book $book)
+    // Memperbarui buku
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required',
-            'author' => 'required',
+            'title' => 'required|max:255',
             'description' => 'required',
-            'cover_image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048', // Validasi gambar
+            'cover_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $coverImagePath = $request->file('cover_image') ? $request->file('cover_image')->store('covers', 'public') : $book->cover_image;
+        $book = Book::findOrFail($id);
+        $coverImage = $book->cover_image;
+
+        if ($request->hasFile('cover_image')) {
+            // Hapus gambar lama
+            if ($coverImage) {
+                unlink(storage_path('app/public/' . $coverImage));
+            }
+
+            $coverImage = $request->file('cover_image')->store('covers', 'public');
+        }
 
         $book->update([
             'title' => $request->title,
-            'author' => $request->author,
             'description' => $request->description,
-            'cover_image' => $coverImagePath,
+            'cover_image' => $coverImage,
         ]);
 
-        return redirect()->route('books.index');
+        return redirect()->route('manage.books');
     }
 
     // Menghapus buku
-    public function destroy(Book $book)
+    public function destroy($id)
     {
+        $book = Book::findOrFail($id);
+        if ($book->cover_image) {
+            unlink(storage_path('app/public/' . $book->cover_image));
+        }
         $book->delete();
-        return redirect()->route('books.index');
+
+        return redirect()->route('manage.books');
     }
 }
